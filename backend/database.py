@@ -15,6 +15,7 @@ class ProductORM(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(nullable=False)
     price: Mapped[float] = mapped_column(nullable=False)
+    image_url: Mapped[str] = mapped_column(nullable=False)
 
 async def get_db():
     async with new_session() as session:
