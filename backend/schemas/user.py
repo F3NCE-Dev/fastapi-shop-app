@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, StringConstraints
+from pydantic import BaseModel, Field, StringConstraints, ConfigDict
 from typing import Annotated
 
 UsernameStr = Annotated[str, StringConstraints(min_length=1, max_length=25, pattern=r"^[a-zA-Z0-9_-]+$")]
@@ -11,3 +11,5 @@ class UserID(BaseModel):
     id: int
     username: str
     role: str
+
+    model_config = ConfigDict(from_attributes=True)
