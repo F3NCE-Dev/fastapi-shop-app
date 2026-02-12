@@ -1,5 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
-class StatusRespones(BaseModel):
+class StatusResponse(BaseModel):
     success: bool
     detail: str
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str
+
+    model_config = ConfigDict(from_attributes=True)
