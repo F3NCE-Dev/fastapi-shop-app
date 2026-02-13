@@ -13,3 +13,6 @@ class UserID(BaseModel):
     role: str
 
     model_config = ConfigDict(from_attributes=True)
+
+class NewUsername(BaseModel):
+    new_name: str = UsernameStr
