@@ -1,11 +1,12 @@
-from pydantic import BaseModel, Field, StringConstraints, ConfigDict
+from pydantic import BaseModel, StringConstraints, ConfigDict
 from typing import Annotated
 
 UsernameStr = Annotated[str, StringConstraints(min_length=1, max_length=25, pattern=r"^[a-zA-Z0-9_-]+$")]
+PasswordStr = Annotated[str, StringConstraints(min_length=5, max_length=25)]
 
 class UserAuth(BaseModel):
-    username: UsernameStr = Field(examples=["username"])
-    password: str = Field(min_length=5, max_length=25, examples=["password"])
+    username: UsernameStr
+    password: PasswordStr
 
 class UserID(BaseModel):
     id: int
@@ -16,3 +17,6 @@ class UserID(BaseModel):
 
 class NewUsername(BaseModel):
     new_name: str = UsernameStr
+
+class NewPassword(BaseModel):
+    password: PasswordStr

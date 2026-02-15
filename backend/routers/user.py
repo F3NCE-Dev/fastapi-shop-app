@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from dependencies import DBSession
 from schemas.product import ProductBase
-from repositories.user_repository import UserRepository
+from repositories.user import UserRepository
 
 router = APIRouter(tags=["User Data"])
 

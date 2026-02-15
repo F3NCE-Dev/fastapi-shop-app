@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from models.user import UserORM
-from auth.security import create_access_token
+from auth.security import create_access_token, hash_password
 
 class ProfileEdit:
     @classmethod
@@ -24,3 +24,16 @@ class ProfileEdit:
         await db.commit()
 
         return create_access_token({"sub": new_username})
+    
+    @classmethod
+    async def EditPassword(cls, profile_id: int, password: str, db: AsyncSession) -> str:
+        result = await db.execute(select(UserORM).where(UserORM.id == profile_id))
+        user = result.scalar_one_or_none()
+
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        user.hashed_password = hash_password(password=password)
+        await db.commit()
+
+        return create_access_token({"sub": user.username})

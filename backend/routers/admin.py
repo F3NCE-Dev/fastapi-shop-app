@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from repositories.admin_repository import AdminCommands
+from repositories.admin import AdminCommands
 from schemas.product import ProductBase
 from schemas.responses import StatusResponse
 

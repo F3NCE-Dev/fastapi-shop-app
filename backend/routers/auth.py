@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from repositories.auth_repository import AuthRepository
+from repositories.auth import AuthRepository
 from schemas.user import UserAuth
 from schemas.responses import StatusResponse, LoginResponse
 from dependencies import DBSession
