@@ -4,4 +4,7 @@ venv
 __pycache__
 app.db
 
+backend/static/profile_pictures/**
+!backend/static/profile_pictures/.gitkeep
+
 # Frontend
