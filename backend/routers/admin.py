@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from repositories.admin import AdminCommands
 from schemas.product import ProductBase
 from schemas.responses import StatusResponse
+from schemas.order import Order
 
 from dependencies import DBSession, CurrentUser
 
@@ -22,3 +23,8 @@ async def admin_remove_product(current_user: CurrentUser, product_id: int, db: D
 async def admin_update_product(current_user: CurrentUser, product_id: int, data: ProductBase, db: DBSession):
     product_id = await AdminCommands.update_product(product_id=product_id, data=data, role=current_user.role, db=db)
     return {"success": True, "detail": f"Product {product_id} updated successfully"}
+
+@router.get("/get-all-orders", response_model=list[Order])
+async def get_orders(current_user: CurrentUser, db: DBSession):
+    orders = await AdminCommands.get_all_orders(current_user.role, db)
+    return orders

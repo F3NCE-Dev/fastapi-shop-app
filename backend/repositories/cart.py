@@ -3,7 +3,10 @@ from fastapi import HTTPException
 from models.cart import CartORM, CartItemORM
 from models.product import ProductORM
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from sqlalchemy import select
+
+from schemas.cart import Cart
 
 class CartRepository:
     @classmethod
@@ -33,3 +36,29 @@ class CartRepository:
         await db.refresh(cart)
 
         return cart.id
+
+    @classmethod
+    async def get_cart_items(cls, user_id: int, db: AsyncSession) -> Cart:
+        result = await db.execute(select(CartORM).where(CartORM.user_id == user_id).options(selectinload(CartORM.items)))
+        cart = result.scalar_one_or_none()
+
+        if not cart:
+            return {"items": [], "total_price": 0}
+        
+        items = []
+        total_price = 0
+
+        for item in cart.items:
+            product =  await db.get(ProductORM, item.product_id)
+            if product:
+                item_data = {
+                    "product_id": product.id,
+                    "name": product.name,
+                    "price": product.price,
+                    "quantity": item.quantity,
+                    "total_price": product.price * item.quantity
+                }
+                items.append(item_data)
+                total_price += item_data["total_price"]
+
+        return {"items": items, "total_price": total_price}

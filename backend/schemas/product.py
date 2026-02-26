@@ -6,3 +6,7 @@ class ProductBase(BaseModel):
     image_url: str
 
     model_config = ConfigDict(from_attributes=True)
+
+class ProductAdd(BaseModel):
+    product_id: int = Field(gt=0)
+    quantity: int = Field(gt=0)

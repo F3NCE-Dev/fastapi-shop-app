@@ -6,7 +6,7 @@ class CartORM(Base):
     __tablename__ = "carts"
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    items: Mapped[list["CartItemORM"]] = relationship(back_populates="cart")
+    items: Mapped[list["CartItemORM"]] = relationship(back_populates="cart", cascade="all, delete-orphan")
 
 class CartItemORM(Base):
     __tablename__ = "cart_items"

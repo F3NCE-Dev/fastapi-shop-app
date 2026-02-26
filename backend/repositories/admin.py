@@ -1,10 +1,13 @@
 from fastapi import HTTPException
 
 from models.product import ProductORM
+from models.order import OrderORM
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from schemas.product import ProductBase
+from schemas.order import Order
 from permissions.permissions import admin_required
 from permissions.roles import Role
 
@@ -42,3 +45,14 @@ class AdminCommands:
 
         await db.commit()
         return product.id
+        
+    @classmethod
+    async def get_all_orders(cls, role: Role, db: AsyncSession) -> list[Order]:
+        admin_required(role)
+        result = await db.execute(select(OrderORM).options(selectinload(OrderORM.items)))
+        orders = result.scalars().all()
+        
+        if not orders:
+            raise HTTPException(status_code=404, detail="Orders not found")
+            
+        return orders

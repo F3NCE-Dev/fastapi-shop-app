@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
-class AddtoCart(BaseModel):
-    product_id: int = Field(gt=0)
-    quantity: int = Field(gt=0)
+class Cart(BaseModel):
+    items: list[dict]
+    total_price: int
