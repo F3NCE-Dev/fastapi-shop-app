@@ -36,6 +36,18 @@ class CartRepository:
         await db.refresh(cart)
 
         return cart.id
+    
+    @classmethod
+    async def clear_cart(cls, user_id: int, db: AsyncSession) -> int:
+        result = await db.execute(select(CartORM).where(CartORM.user_id == user_id).options(selectinload(CartORM.items)))
+        cart = result.scalar_one_or_none()
+
+        if not cart:
+            raise HTTPException(status_code=404, detail="Cart not found")
+        
+        cart.items.clear()
+        await db.commit()
+        return cart.id
 
     @classmethod
     async def get_cart_items(cls, user_id: int, db: AsyncSession) -> Cart:
