@@ -1,15 +1,16 @@
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy import ForeignKey
 from database import Base
+from enums.order_status import OrderStatus
+from sqlalchemy.dialects.postgresql import ENUM as SQLEnum
 
 class OrderORM(Base):
     __tablename__ = "orders"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-
     total_price: Mapped[int] = mapped_column(nullable=False, default=0)
-
+    status: Mapped[OrderStatus] = mapped_column(SQLEnum(OrderStatus), default=OrderStatus.pending)
     items: Mapped[list["OrderItemORM"]] = relationship(back_populates="order", cascade="all, delete-orphan")
 
 class OrderItemORM(Base):

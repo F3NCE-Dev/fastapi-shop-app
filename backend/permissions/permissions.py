@@ -1,6 +1,7 @@
 from fastapi import HTTPException
-from permissions.roles import Role
+from dependencies import CurrentUser
+from enums.roles import Role
 
-def admin_required(role: Role) -> None:
-    if role is not Role.ADMIN:
+def admin_required(current_user: CurrentUser) -> None:
+    if current_user.role is not Role.ADMIN:
         raise HTTPException(status_code=403, detail="Forbidden")

@@ -8,21 +8,18 @@ from sqlalchemy.orm import selectinload
 
 from schemas.product import ProductBase
 from schemas.order import Order
-from permissions.permissions import admin_required
-from permissions.roles import Role
+from enums.order_status import OrderStatus
 
 class AdminCommands:
     @classmethod
-    async def add_product(cls, data: ProductBase, role: Role, db: AsyncSession) -> int:
-        admin_required(role)
+    async def add_product(cls, data: ProductBase, db: AsyncSession) -> int:
         new_product = ProductORM(**data.model_dump())
         db.add(new_product)
         await db.commit()
         return new_product.id
     
     @classmethod
-    async def remove_product(cls, product_id: int, role: Role, db: AsyncSession) -> int:
-        admin_required(role)
+    async def remove_product(cls, product_id: int, db: AsyncSession) -> int:
         product = await db.get(ProductORM, product_id)
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
@@ -32,10 +29,8 @@ class AdminCommands:
         return product.id
 
     @classmethod
-    async def update_product(cls, product_id: int, data: ProductBase, role: Role, db: AsyncSession) -> int:
-        admin_required(role)
-        result = await db.execute(select(ProductORM).where(ProductORM.id == product_id))
-        product = result.scalar_one_or_none()
+    async def update_product(cls, product_id: int, data: ProductBase, db: AsyncSession) -> int:
+        product = await db.get(ProductORM, product_id)
 
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
@@ -45,10 +40,21 @@ class AdminCommands:
 
         await db.commit()
         return product.id
+    
+    @classmethod
+    async def update_order_status(cls, order_id: int, status: OrderStatus, db: AsyncSession) -> int:
+        result = await db.execute(select(OrderORM).where(OrderORM.id == order_id))
+        order = result.scalar_one_or_none()
+
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        
+        order.status = status
+        await db.commit()
+        return order.id
         
     @classmethod
-    async def get_all_orders(cls, role: Role, db: AsyncSession) -> list[Order]:
-        admin_required(role)
+    async def get_all_orders(cls, db: AsyncSession) -> list[Order]:
         result = await db.execute(select(OrderORM).options(selectinload(OrderORM.items)))
         orders = result.scalars().all()
         

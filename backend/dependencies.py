@@ -4,7 +4,6 @@ from database import get_db
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.user import UserORM
-from permissions.roles import Role
 
 from config.config import settings
 from auth.security import oauth2_scheme
@@ -36,9 +35,6 @@ async def get_current_user(
         raise credentials_exception
 
     return user
-
-async def get_current_user_role() -> Role:
-    return await get_current_user.role
 
 DBSession = Annotated[AsyncSession, Depends(get_db)]
 CurrentUser = Annotated[UserORM, Depends(get_current_user)]

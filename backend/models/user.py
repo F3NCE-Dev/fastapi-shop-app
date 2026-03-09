@@ -1,6 +1,6 @@
 from sqlalchemy.orm import mapped_column, Mapped
 from database import Base
-from permissions.roles import Role
+from enums.roles import Role
 
 from config.config import settings
 
