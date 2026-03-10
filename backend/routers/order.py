@@ -7,16 +7,16 @@ from dependencies import CurrentUser, DBSession
 
 router = APIRouter(tags=["Ordering"])
 
-@router.post("/set-order", response_model=StatusResponse)
+@router.post("/order", response_model=StatusResponse)
 async def set_order(current_user: CurrentUser, db: DBSession):
     order_id = await OrderRepository.add_order(current_user.id, db)
     return {"success": True, "detail": f"Order {order_id} set successfully"}
 
-@router.get("/get-order", response_model=list[Order])
+@router.get("/order", response_model=list[Order])
 async def get_order(current_user: CurrentUser, db: DBSession):
     return await OrderRepository.get_order(current_user.id, db)
 
-@router.delete("/delete-order/{order_id}", response_model=StatusResponse)
+@router.delete("/order/{order_id}", response_model=StatusResponse)
 async def delete_order(current_user: CurrentUser, order_id: int, db: DBSession):
     await OrderRepository.delete_order(current_user.id, order_id, db)
     return {"success": True, "detail": f"Order {order_id} deleted successfully"}

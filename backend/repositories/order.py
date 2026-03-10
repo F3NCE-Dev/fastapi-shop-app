@@ -45,7 +45,7 @@ class OrderRepository:
         return order.id
     
     @classmethod
-    async def delete_order(cls, user_id: int, order_id: int, db: AsyncSession):
+    async def delete_order(cls, user_id: int, order_id: int, db: AsyncSession) -> None:
         result = await db.execute(select(OrderORM).where(OrderORM.user_id == user_id, OrderORM.id == order_id))
         order = result.scalar_one_or_none()
 

@@ -44,16 +44,16 @@ class ProfileEdit:
         return create_access_token({"sub": user.username})
     
     @classmethod
-    async def EditProfilePicture(cls, data: UploadFile, profile_id: int, db: AsyncSession) -> None:
+    async def EditProfilePicture(cls, image: UploadFile, profile_id: int, db: AsyncSession) -> None:
         user = await db.get(UserORM, profile_id)
 
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
 
-        if data.content_type not in ("image/jpeg", "image/png"):
+        if image.content_type not in ("image/jpeg", "image/png"):
             raise HTTPException(400, "Invalid image type")
         
-        filename = Path(data.filename).name
+        filename = Path(image.filename).name
 
         user_dir = Path(settings.PROFILE_PICTURES_PATH) / str(profile_id)
         user_dir.mkdir(parents=True, exist_ok=True)
@@ -66,7 +66,7 @@ class ProfileEdit:
             old_file.unlink()
 
         async with aiofiles.open(file_path, "wb") as file:
-            await file.write(await data.read())
+            await file.write(await image.read())
         
         user.profile_picture_url = file_path.as_posix()
 

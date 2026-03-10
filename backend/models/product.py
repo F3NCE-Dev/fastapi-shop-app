@@ -10,4 +10,4 @@ class ProductORM(Base):
     description: Mapped[Optional[str]] = mapped_column(nullable=True)
     price: Mapped[float] = mapped_column(nullable=False)
     category: Mapped[str] = mapped_column(nullable=False)
-    image_url: Mapped[str] = mapped_column(nullable=False)
+    image_url: Mapped[Optional[str]] = mapped_column(nullable=False)

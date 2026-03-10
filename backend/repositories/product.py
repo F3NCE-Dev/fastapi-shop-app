@@ -2,16 +2,27 @@ from fastapi import HTTPException
 from models.product import ProductORM
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Optional
 
-class UserRepository:
+class ProductRepository:
     @classmethod
-    async def get_products(cls,category: str, search: str, db: AsyncSession):
+    async def get_products(cls,category: str, search: str, limit: int, offset: int, sort: Optional[str], db: AsyncSession):
         query = select(ProductORM)
         
         if category:
             query = query.where(ProductORM.category == category)
         if search:
             query = query.where(ProductORM.name.ilike(f"%{search}%"))
+
+        if sort:
+            descending = sort.startswith("-")
+            field = sort.lstrip("-")
+            
+            if hasattr(ProductORM, field):
+                column = getattr(ProductORM, field)
+                query = query.order_by(column.desc() if descending else column.asc())
+
+        query = query.limit(limit).offset(offset)
 
         result = await db.execute(query)
         return result.scalars().all()
