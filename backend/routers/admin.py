@@ -26,7 +26,7 @@ async def admin_update_product(product_id: int, data: ProductBase, db: DBSession
     product_id = await AdminCommands.update_product(product_id=product_id, data=data, db=db)
     return {"success": True, "detail": f"Product {product_id} updated successfully"}
 
-@router.patch("/products{product_id}/image")
+@router.patch("/products/{product_id}/image")
 async def admin_update_product_image(product_id: int, image: UploadFile, db: DBSession):
     product_id = await AdminCommands.update_product_image(product_id=product_id, image=image, db=db)
     return {"success": True, "detail": f"Product {product_id} image updated successfully"}

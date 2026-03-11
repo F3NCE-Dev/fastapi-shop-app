@@ -5,7 +5,7 @@ from dependencies import DBSession
 from schemas.product import ProductBase
 from repositories.product import ProductRepository
 
-router = APIRouter(tags=["User Data"])
+router = APIRouter(tags=["Product Data"])
 
 @router.get("/products", response_model=list[ProductBase])
 async def get_products(
