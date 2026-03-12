@@ -7,7 +7,7 @@ from database import setup_database
 
 from contextlib import asynccontextmanager
 
-from routers import cart, admin, auth, profile, order, product
+from routers import cart, admin, auth, profile, order, product, oauth
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,5 +30,6 @@ app.include_router(profile.router)
 app.include_router(cart.router)
 app.include_router(order.router)
 app.include_router(admin.router)
+app.include_router(oauth.router)
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="backend/static"), name="static")
