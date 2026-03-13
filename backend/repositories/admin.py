@@ -67,7 +67,7 @@ class AdminCommands:
         
         img_name = Path(image.filename).name
 
-        product_dir = Path(settings.PRODUCT_IMAGES_PATH)
+        product_dir = Path(settings.PRODUCT_IMAGES_PATH) / str(product_id)
         product_dir.mkdir(parents=True, exist_ok=True)
 
         file_path = product_dir / img_name
