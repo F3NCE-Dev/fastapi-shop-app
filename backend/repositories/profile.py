@@ -3,6 +3,7 @@ from fastapi import HTTPException, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
+from dependencies import get_image_url
 from models.user import UserORM
 from auth.security import create_access_token, hash_password
 
@@ -79,4 +80,4 @@ class ProfileEdit:
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
 
-        return user.profile_picture_url
+        return get_image_url(user.profile_picture_url)

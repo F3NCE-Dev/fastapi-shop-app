@@ -4,7 +4,7 @@ __pycache__
 app.db
 
 static/profile_pictures/**
-static/profile_pictures/.gitkeep
+!static/profile_pictures/.gitkeep
 
 static/product_images/**
 !static/product_images/.gitkeep

@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from dependencies import get_image_url
 from models.product import ProductORM
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,7 +26,12 @@ class ProductRepository:
         query = query.limit(limit).offset(offset)
 
         result = await db.execute(query)
-        return result.scalars().all()
+        products = result.scalars().all()
+
+        for product in products:
+            product.image_url = get_image_url(product.image_url)
+        
+        return products
 
     @classmethod
     async def get_product(cls, product_id: int, db: AsyncSession):
@@ -34,5 +40,7 @@ class ProductRepository:
 
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
+        
+        product.image_url = get_image_url(product.image_url)
 
         return product

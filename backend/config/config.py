@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     DEFAULT_PROFILE_PICTURE_URL: str = "backend/static/default_profile_pic/default.png"
     PRODUCT_IMAGES_PATH: str = "backend/static/product_images"
     
-    FRONTEND_ORIGINS: list[str] = ["http://localhost:5500", "http://127.0.0.1:5500"]
+    FRONTEND_ORIGINS: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
     REDIRECT_URI: str = "Redirect Uri"
 
     OAUTH_GOOGLE_CLIENT_ID: str = "Google ID"

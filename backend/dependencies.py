@@ -38,3 +38,8 @@ async def get_current_user(
 
 DBSession = Annotated[AsyncSession, Depends(get_db)]
 CurrentUser = Annotated[UserORM, Depends(get_current_user)]
+
+def get_image_url(image_path: str) -> str:
+    if image_path and image_path.startswith("backend/"):
+        return image_path.replace("backend/", "", 1)
+    return image_path
