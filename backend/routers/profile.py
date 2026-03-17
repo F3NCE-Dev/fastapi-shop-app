@@ -22,6 +22,6 @@ async def edit_profile_picture(file: UploadFile, current_user: CurrentUser, db: 
     await ProfileEdit.EditProfilePicture(file, current_user.id, db)
     return {"success": True, "detail": "Profile picture updated successfully"}
 
-@router.get("/users/{user_id}/profile-picture")
-async def get_profile_picture(user_id: int, db: DBSession) -> str:
-    return await ProfileEdit.GetProfilePicture(user_id, db)
+@router.get("/profile/picture")
+async def get_my_profile_picture(current_user: CurrentUser, db: DBSession) -> str:
+    return await ProfileEdit.GetProfilePicture(current_user.id, db)
