@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, UploadFile
+from fastapi import APIRouter, Depends, Query, UploadFile, File, Form
 
 from repositories.admin import AdminCommands
 from schemas.product import ProductBase
@@ -11,9 +11,24 @@ from dependencies import DBSession
 
 router = APIRouter(tags=["Admin"], dependencies=[Depends(admin_required)])
 
-@router.post("/products", response_model=StatusResponse)
-async def admin_add_product(data: ProductBase, db: DBSession):
-    product_id = await AdminCommands.add_product(data=data, db=db)
+@router.post("/products", response_model=StatusResponse, status_code=201)
+async def admin_add_product(
+    db: DBSession,
+    name: str = Form(...),
+    description: str = Form(...),
+    price: float = Form(...),
+    category: str = Form(...),
+    image: UploadFile = File(...),
+):
+    product_id = await AdminCommands.add_product(
+        name=name,
+        description=description,
+        price=price,
+        category=category,
+        image=image,
+        db=db,
+    )
+
     return {"success": True, "detail": f"Product {product_id} added successfully"}
 
 @router.delete("/products/{product_id}", response_model=StatusResponse)
@@ -26,7 +41,7 @@ async def admin_update_product(product_id: int, data: ProductBase, db: DBSession
     product_id = await AdminCommands.update_product(product_id=product_id, data=data, db=db)
     return {"success": True, "detail": f"Product {product_id} updated successfully"}
 
-@router.patch("/products/{product_id}/image")
+@router.patch("/products/{product_id}/image", response_model=StatusResponse)
 async def admin_update_product_image(product_id: int, image: UploadFile, db: DBSession):
     product_id = await AdminCommands.update_product_image(product_id=product_id, image=image, db=db)
     return {"success": True, "detail": f"Product {product_id} image updated successfully"}

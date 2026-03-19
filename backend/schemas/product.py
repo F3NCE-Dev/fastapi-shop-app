@@ -6,7 +6,6 @@ class ProductBase(BaseModel):
     description: Optional[str] = Field(description="product description")
     price: float = Field(gt=0, description="product price")
     category: str = Field(min_length=1, max_length=50, description="product category")
-    image_url: str
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -16,3 +15,4 @@ class ProductAdd(BaseModel):
 
 class ProductResponse(ProductBase):
     id: int
+    image_url: str

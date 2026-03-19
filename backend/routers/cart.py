@@ -8,7 +8,7 @@ from dependencies import CurrentUser, DBSession
 
 router = APIRouter(tags=["Cart Panel"])
 
-@router.post("/cart/items", response_model=StatusResponse)
+@router.post("/cart/items", response_model=StatusResponse, status_code=201)
 async def add_to_cart(current_user: CurrentUser, item: ProductAdd, db: DBSession):
     cart_id = await CartRepository.add_to_cart(current_user.id, item.product_id, item.quantity, db)
     return {"success": True, "detail": f"Product {item.product_id} added to cart {cart_id} successfully"}

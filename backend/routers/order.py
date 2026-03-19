@@ -7,7 +7,7 @@ from dependencies import CurrentUser, DBSession
 
 router = APIRouter(tags=["Ordering"])
 
-@router.post("/order", response_model=StatusResponse)
+@router.post("/order", response_model=StatusResponse, status_code=201)
 async def set_order(current_user: CurrentUser, db: DBSession):
     order_id = await OrderRepository.add_order(current_user.id, db)
     return {"success": True, "detail": f"Order {order_id} set successfully"}

@@ -15,14 +15,42 @@ from pathlib import Path
 import aiofiles
 from config.config import settings
 
+async def upload_image(image: UploadFile, folder_name: str) -> str:
+    if image.content_type not in ("image/jpeg", "image/png"):
+        raise HTTPException(400, "Invalid image type")
+        
+    img_name = Path(image.filename).name
+
+    product_dir = Path(settings.PRODUCT_IMAGES_PATH) / folder_name
+    product_dir.mkdir(parents=True, exist_ok=True)
+
+    file_path = product_dir / img_name
+
+    async with aiofiles.open(file_path, "wb") as file:
+        await file.write(await image.read())
+
+    return file_path.as_posix()
+
 class AdminCommands:
     @classmethod
-    async def add_product(cls, data: ProductBase, db: AsyncSession) -> int:
-        new_product = ProductORM(**data.model_dump())
-        db.add(new_product)
-        await db.commit()
-        return new_product.id
-    
+    async def add_product(cls, name: str, description: str, price: float, category: str, image: UploadFile, db: AsyncSession) -> int:
+        new_product = ProductORM(
+            name=name,
+            description=description,
+            price=price,
+            category=category,
+            image_url=""
+        )
+        try:
+            db.add(new_product)
+            await db.flush()
+            new_product.image_url = await upload_image(image=image, folder_name=str(new_product.id))
+            await db.commit()
+            return new_product.id
+        except Exception as e:
+            await db.rollback()
+            raise HTTPException(status_code=500, detail="Failed to add product") from e
+
     @classmethod
     async def remove_product(cls, product_id: int, db: AsyncSession) -> int:
         product = await db.get(ProductORM, product_id)
@@ -48,14 +76,11 @@ class AdminCommands:
     
     @classmethod
     async def update_product_image(cls, product_id: int, image: UploadFile, db: AsyncSession) -> int:
-        if image.content_type not in ("image/jpeg", "image/png"):
-            raise HTTPException(400, "Invalid image type")
-        
         product = await db.get(ProductORM, product_id)
 
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
-        
+
         old_image_path = product.image_url
         if old_image_path:
             old_file = Path(old_image_path)
@@ -64,20 +89,15 @@ class AdminCommands:
                     old_file.unlink()
                 except Exception as e:
                     print(f"Failed to delete old image: {e}")
-        
-        img_name = Path(image.filename).name
 
-        product_dir = Path(settings.PRODUCT_IMAGES_PATH) / str(product_id)
-        product_dir.mkdir(parents=True, exist_ok=True)
-
-        file_path = product_dir / img_name
-
-        async with aiofiles.open(file_path, "wb") as file:
-            await file.write(await image.read())
-
-        product.image_url = file_path.as_posix()
-        await db.commit()
-        return product.id
+        try:
+            path = await upload_image(image=image, folder_name=str(product_id))
+            product.image_url = path
+            await db.commit()
+            return product.id
+        except Exception as e:
+            await db.rollback()
+            raise HTTPException(status_code=500, detail="Failed to update product image") from e
     
     @classmethod
     async def update_order_status(cls, order_id: int, status: OrderStatus, db: AsyncSession) -> None:

@@ -10,7 +10,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(tags=["Authorization"])
 
-@router.post("/register", response_model=StatusResponse)
+@router.post("/register", response_model=StatusResponse, status_code=201)
 async def register(data: UserAuth, db: DBSession):
     user_id = await AuthRepository.register(data=data, db=db)
     return {"success": True, "detail": f"User {user_id} registered successfully"}
