@@ -11,5 +11,5 @@ class UserORM(Base):
     username: Mapped[str] = mapped_column(nullable=False)
     email: Mapped[Optional[str]] = mapped_column(unique=True, index=True, nullable=True)
     hashed_password: Mapped[str] = mapped_column(nullable=False)
-    role: Mapped[Role] = mapped_column(nullable=True, default=Role.USER)
+    role: Mapped[Role] = mapped_column(nullable=True, default=Role.user)
     profile_picture_url: Mapped[str] = mapped_column(nullable=True, default=settings.DEFAULT_PROFILE_PICTURE_URL)

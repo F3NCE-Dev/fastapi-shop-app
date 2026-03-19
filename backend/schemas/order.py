@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 class OrderItem(BaseModel):
     id: int
@@ -7,8 +7,7 @@ class OrderItem(BaseModel):
     order_id: int
     price_at_purchase: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class Order(BaseModel):
     total_price: int
@@ -16,5 +15,4 @@ class Order(BaseModel):
     user_id: int
     items: list[OrderItem]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

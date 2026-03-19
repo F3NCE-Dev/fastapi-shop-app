@@ -5,7 +5,9 @@ from schemas.product import ProductBase
 from schemas.responses import StatusResponse
 from schemas.order import Order
 from schemas.user import User
+from schemas.category import CategoryBase
 from enums.order_status import OrderStatus
+from enums.roles import Role
 from permissions.permissions import admin_required
 from dependencies import DBSession
 
@@ -17,14 +19,14 @@ async def admin_add_product(
     name: str = Form(...),
     description: str = Form(...),
     price: float = Form(...),
-    category: str = Form(...),
+    category_id: int = Form(...),
     image: UploadFile = File(...),
 ):
     product_id = await AdminCommands.add_product(
         name=name,
         description=description,
         price=price,
-        category=category,
+        category_id=category_id,
         image=image,
         db=db,
     )
@@ -46,6 +48,21 @@ async def admin_update_product_image(product_id: int, image: UploadFile, db: DBS
     product_id = await AdminCommands.update_product_image(product_id=product_id, image=image, db=db)
     return {"success": True, "detail": f"Product {product_id} image updated successfully"}
 
+@router.post("/category", response_model=StatusResponse, status_code=201)
+async def admin_add_category(data: CategoryBase, db: DBSession):
+    category_id = await AdminCommands.add_category(name=data.name, db=db)
+    return {"success": True, "detail": f"Category {category_id} added successfully"}
+
+@router.patch("/category/{category_id}/products", response_model=StatusResponse)
+async def admin_add_product_to_category(product_id: int, category_id: int, db: DBSession):
+    product_id = await AdminCommands.add_product_to_category(product_id=product_id, category_id=category_id, db=db)
+    return {"success": True, "detail": f"Product {product_id} added to category {category_id} successfully"}
+
+@router.delete("/category/{category_id}", response_model=StatusResponse)
+async def admin_delete_category(category_id: int, db: DBSession):
+    category_id = await AdminCommands.delete_category(category_id=category_id, db=db)
+    return {"success": True, "detail": f"Category {category_id} deleted successfully"}
+
 @router.patch("/orders/{order_id}/status", response_model=StatusResponse)
 async def admin_update_order_status(order_id: int, status: OrderStatus, db: DBSession):
     order_id = await AdminCommands.update_order_status(order_id=order_id, status=status, db=db)
@@ -58,6 +75,11 @@ async def get_orders(db: DBSession):
 @router.get("/orders/{order_id}", response_model=Order)
 async def get_order(order_id: int, db: DBSession):
     return await AdminCommands.get_order(order_id=order_id, db=db)
+
+@router.patch("/users/{user_id}/role", response_model=StatusResponse)
+async def admin_update_user_role(user_id: int, role: Role, db: DBSession):
+    await AdminCommands.update_user_role(user_id=user_id, role=role, db=db)
+    return {"success": True, "detail": f"User {user_id} role updated to {role} successfully"}
 
 @router.get("/users", response_model=list[User])
 async def get_users(db: DBSession,

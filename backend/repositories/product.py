@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from dependencies import get_image_url
+from schemas.product import ProductResponse
 from models.product import ProductORM
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,11 +8,11 @@ from typing import Optional
 
 class ProductRepository:
     @classmethod
-    async def get_products(cls,category: str, search: str, limit: int, offset: int, sort: Optional[str], db: AsyncSession):
+    async def get_products(cls, category_id: int, search: str, limit: int, offset: int, sort: Optional[str], db: AsyncSession) -> list[ProductResponse]:
         query = select(ProductORM)
         
-        if category:
-            query = query.where(ProductORM.category == category)
+        if category_id:
+            query = query.where(ProductORM.category_id == category_id)
         if search:
             query = query.where(ProductORM.name.ilike(f"%{search}%"))
 
@@ -34,7 +35,7 @@ class ProductRepository:
         return products
 
     @classmethod
-    async def get_product(cls, product_id: int, db: AsyncSession):
+    async def get_product(cls, product_id: int, db: AsyncSession) -> ProductResponse:
         result = await db.execute(select(ProductORM).where(ProductORM.id == product_id))
         product = result.scalar_one_or_none()
 

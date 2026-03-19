@@ -5,7 +5,7 @@ class ProductBase(BaseModel):
     name: str = Field(min_length=1, max_length=100, description="product name")
     description: Optional[str] = Field(description="product description")
     price: float = Field(gt=0, description="product price")
-    category: str = Field(min_length=1, max_length=50, description="product category")
+    category_id: Optional[int] = Field(gt=0, description="product category")
 
     model_config = ConfigDict(from_attributes=True)
 

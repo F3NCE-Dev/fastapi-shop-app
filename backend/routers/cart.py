@@ -6,7 +6,7 @@ from schemas.responses import StatusResponse
 from schemas.cart import Cart
 from dependencies import CurrentUser, DBSession
 
-router = APIRouter(tags=["Cart Panel"])
+router = APIRouter(tags=["Cart"])
 
 @router.post("/cart/items", response_model=StatusResponse, status_code=201)
 async def add_to_cart(current_user: CurrentUser, item: ProductAdd, db: DBSession):

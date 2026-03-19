@@ -3,6 +3,7 @@ from fastapi import HTTPException, UploadFile
 from models.product import ProductORM
 from models.order import OrderORM
 from models.user import UserORM
+from models.category import CategoryORM
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -11,6 +12,7 @@ from schemas.product import ProductBase
 from schemas.order import Order
 from schemas.user import User
 from enums.order_status import OrderStatus
+from enums.roles import Role
 from pathlib import Path
 import aiofiles
 from config.config import settings
@@ -33,12 +35,12 @@ async def upload_image(image: UploadFile, folder_name: str) -> str:
 
 class AdminCommands:
     @classmethod
-    async def add_product(cls, name: str, description: str, price: float, category: str, image: UploadFile, db: AsyncSession) -> int:
+    async def add_product(cls, name: str, description: str, price: float, category_id: int, image: UploadFile, db: AsyncSession) -> int:
         new_product = ProductORM(
             name=name,
             description=description,
             price=price,
-            category=category,
+            category_id=category_id,
             image_url=""
         )
         try:
@@ -100,6 +102,35 @@ class AdminCommands:
             raise HTTPException(status_code=500, detail="Failed to update product image") from e
     
     @classmethod
+    async def add_category(cls, name: str, db: AsyncSession) -> int:
+        new_category = CategoryORM(name=name)
+        db.add(new_category)
+        await db.commit()
+        return new_category.id
+
+    @classmethod
+    async def add_product_to_category(cls, category_id: int, product_id: int, db: AsyncSession) -> int:
+        product = await db.get(ProductORM, product_id)
+
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+        
+        product.category_id = category_id
+        await db.commit()
+        return product.id
+
+    @classmethod
+    async def delete_category(cls, category_id: int, db: AsyncSession) -> int:
+        category = await db.get(CategoryORM, category_id)
+
+        if not category:
+            raise HTTPException(status_code=404, detail="Category not found")
+        
+        await db.delete(category)
+        await db.commit()
+        return category.id
+    
+    @classmethod
     async def update_order_status(cls, order_id: int, status: OrderStatus, db: AsyncSession) -> None:
         result = await db.execute(select(OrderORM).where(OrderORM.id == order_id))
         order = result.scalar_one_or_none()
@@ -129,6 +160,16 @@ class AdminCommands:
             raise HTTPException(status_code=404, detail="Order not found")
         
         return order
+    
+    @classmethod
+    async def update_user_role(cls, user_id: int, role: Role, db: AsyncSession) -> None:
+        user = await db.get(UserORM, user_id)
+
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user.role = role
+        await db.commit()
     
     @classmethod
     async def get_all_users(cls, limit: int, offset: int, db: AsyncSession) -> list[User]:
