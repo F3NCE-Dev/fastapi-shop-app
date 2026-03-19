@@ -6,7 +6,7 @@ import { productsAPI, API_BASE_URL } from "../services/api";
 const products = ref([]);
 
 const filters = reactive({
-  sortBy: "title",
+  sortBy: "name",
   searchQuery: "",
 });
 
@@ -41,7 +41,7 @@ watch(filters, fetchProducts);
           v-model="filters.sortBy"
           class="py-2 px-3 border rounded-md outline-none"
         >
-          <option value="title">By name</option>
+          <option value="name">By name</option>
           <option value="price">By price (cheap)</option>
           <option value="-price">By price (expensive)</option>
         </select>
@@ -57,7 +57,8 @@ watch(filters, fetchProducts);
       <ProductCard
         v-for="product in products"
         :key="product.id"
-        :title="product.title"
+        :id="product.id"
+        :name="product.name"
         :price="product.price"
         :imageUrl="
           product.image_url ? `${API_BASE_URL}/${product.image_url}` : ''

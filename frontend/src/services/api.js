@@ -21,6 +21,9 @@ export const productsAPI = {
   getProducts(params) {
     return apiClient.get("/products", { params });
   },
+  getProduct(id) {
+    return apiClient.get(`/products/${id}`);
+  },
 };
 
 export const authAPI = {

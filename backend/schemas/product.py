@@ -13,3 +13,6 @@ class ProductBase(BaseModel):
 class ProductAdd(BaseModel):
     product_id: int = Field(gt=0)
     quantity: int = Field(gt=0)
+
+class ProductResponse(ProductBase):
+    id: int
