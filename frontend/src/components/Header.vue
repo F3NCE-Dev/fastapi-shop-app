@@ -59,7 +59,9 @@ watch(() => route.path, checkLoginStatus);
           <a href="#" class="text-slate-700 hover:text-slate-900">Contact</a>
         </li>
         <li>
-          <a href="#" class="text-slate-700 hover:text-slate-900">Cart</a>
+          <router-link to="/cart" class="text-slate-700 hover:text-slate-900"
+            >Cart</router-link
+          >
         </li>
       </ul>
 

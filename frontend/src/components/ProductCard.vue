@@ -1,12 +1,28 @@
 <script setup>
 import { RouterLink } from "vue-router";
+import { ref } from "vue";
+import { cartAPI } from "../services/api";
 
-defineProps({
+const props = defineProps({
   id: Number,
   imageUrl: String,
   name: String,
   price: Number,
 });
+
+const isAdding = ref(false);
+
+const addToCart = async () => {
+  if (isAdding.value) return;
+  isAdding.value = true;
+  try {
+    await cartAPI.addToCart({ product_id: props.id, quantity: 1 });
+  } catch (err) {
+    console.error(err);
+  } finally {
+    isAdding.value = false;
+  }
+};
 </script>
 
 <template>
@@ -21,11 +37,15 @@ defineProps({
     </RouterLink>
     <div class="flex justify-between items-center">
       <p class="text-gray-600">{{ price }} $</p>
-      <button
-        class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 cursor-pointer"
-      >
-        Add to Cart
-      </button>
+      <div class="flex items-center gap-2">
+        <button
+          @click="addToCart"
+          class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 cursor-pointer disabled:opacity-50"
+          :disabled="isAdding"
+        >
+          Add to Cart
+        </button>
+      </div>
     </div>
   </div>
 </template>

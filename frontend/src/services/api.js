@@ -59,3 +59,21 @@ export const profileAPI = {
     return apiClient.get("/profile/picture");
   },
 };
+
+export const cartAPI = {
+  getCart() {
+    return apiClient.get("/cart/items");
+  },
+  addToCart(data) {
+    return apiClient.post("/cart/items", data);
+  },
+  decreaseQuantity(productId, quantity) {
+    return apiClient.delete(`/cart/items/${productId}/${quantity}`);
+  },
+  removeFromCart(productId) {
+    return apiClient.delete(`/cart/items/${productId}`);
+  },
+  clearCart() {
+    return apiClient.delete("/cart/items");
+  },
+};

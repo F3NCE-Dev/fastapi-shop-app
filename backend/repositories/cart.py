@@ -38,7 +38,7 @@ class CartRepository:
         return cart.id
     
     @classmethod
-    async def remove_from_cart(cls, user_id: int, product_id: int, db: AsyncSession) -> int:
+    async def remove_from_cart(cls, user_id: int, product_id: int, quantity: int, db: AsyncSession) -> int:
         result = await db.execute(select(CartORM).where(CartORM.user_id == user_id).options(selectinload(CartORM.items)))
         cart = result.scalar_one_or_none()
 
@@ -55,11 +55,33 @@ class CartRepository:
         if not item_to_remove:
             raise HTTPException(status_code=404, detail="Product not in cart")
         
-        if item_to_remove.quantity > 1:
-            item_to_remove.quantity -= 1
+        if item_to_remove.quantity > quantity:
+            item_to_remove.quantity -= quantity
         else:
             await db.delete(item_to_remove)
 
+        await db.commit()
+        return cart.id
+    
+    @classmethod
+    async def clear_item_from_cart(cls, user_id: int, product_id: int, db: AsyncSession) -> int:
+        result = await db.execute(select(CartORM).where(CartORM.user_id == user_id).options(selectinload(CartORM.items)))
+        cart = result.scalar_one_or_none()
+
+        if not cart:
+            raise HTTPException(status_code=404, detail="Cart not found")
+        
+        item_to_remove = None
+
+        for item in cart.items:
+            if item.product_id == product_id:
+                item_to_remove = item
+                break
+
+        if not item_to_remove:
+            raise HTTPException(status_code=404, detail="Product not in cart")
+        
+        await db.delete(item_to_remove)
         await db.commit()
         return cart.id
     
