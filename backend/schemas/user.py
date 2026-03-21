@@ -9,23 +9,18 @@ class UserAuth(BaseModel):
     username: UsernameStr
     password: PasswordStr
 
-class UserID(BaseModel):
-    id: int
-    username: str
-    role: Role
-
-    model_config = ConfigDict(from_attributes=True)
-
 class User(BaseModel):
-    id: int
     username: str
     role: Role
     profile_picture_url: str
 
     model_config = ConfigDict(from_attributes=True)
 
+class UserID(User):
+    id: int
+
 class NewUsername(BaseModel):
-    new_name: str = UsernameStr
+    new_name: UsernameStr
 
 class NewPassword(BaseModel):
     password: PasswordStr

@@ -1,13 +1,14 @@
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { profileAPI, API_BASE_URL } from "../services/api";
+import { profileAPI, authAPI, API_BASE_URL } from "../services/api";
 
 const route = useRoute();
 const router = useRouter();
 const isLoggedIn = ref(false);
 const showMenu = ref(false);
 const profilePictureUrl = ref("");
+const isAdmin = ref(false);
 
 const checkLoginStatus = async () => {
   const token = localStorage.getItem("token");
@@ -18,12 +19,16 @@ const checkLoginStatus = async () => {
       if (data) {
         profilePictureUrl.value = `${API_BASE_URL}/${data}`;
       }
+
+      const userResponse = await authAPI.getMe();
+      isAdmin.value = userResponse.data.role === "admin";
     } catch (e) {
       console.error("Error fetching user data:", e);
     }
   } else {
     isLoggedIn.value = false;
     profilePictureUrl.value = "";
+    isAdmin.value = false;
   }
 };
 
@@ -61,6 +66,13 @@ watch(() => route.path, checkLoginStatus);
         <li>
           <router-link to="/cart" class="text-slate-700 hover:text-slate-900"
             >Cart</router-link
+          >
+        </li>
+        <li v-if="isAdmin">
+          <router-link
+            to="/admin"
+            class="text-slate-700 hover:text-slate-900 font-bold"
+            >Admin</router-link
           >
         </li>
       </ul>

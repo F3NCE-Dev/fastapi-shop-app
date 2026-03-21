@@ -10,7 +10,7 @@ from sqlalchemy.orm import selectinload
 
 from schemas.product import ProductBase
 from schemas.order import Order
-from schemas.user import User
+from schemas.user import UserID
 from enums.order_status import OrderStatus
 from enums.roles import Role
 from pathlib import Path
@@ -172,19 +172,19 @@ class AdminCommands:
         await db.commit()
     
     @classmethod
-    async def get_all_users(cls, limit: int, offset: int, db: AsyncSession) -> list[User]:
+    async def get_all_users(cls, limit: int, offset: int, db: AsyncSession) -> list[UserID]:
         query = select(UserORM)
 
         query = query.limit(limit).offset(offset)
 
         result = await db.execute(query)
         users = result.scalars().all()
-        user_schemas = [User.model_validate(user) for user in users]
+        user_schemas = [UserID.model_validate(user) for user in users]
         return user_schemas
     
     @classmethod
-    async def get_user(cls, user_id: int, db: AsyncSession) -> User:
+    async def get_user(cls, user_id: int, db: AsyncSession) -> UserID:
         user = await db.get(UserORM, user_id)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        return User.model_validate(user)
+        return UserID.model_validate(user)

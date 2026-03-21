@@ -4,7 +4,7 @@ from repositories.admin import AdminCommands
 from schemas.product import ProductBase
 from schemas.responses import StatusResponse
 from schemas.order import Order
-from schemas.user import User
+from schemas.user import UserID
 from schemas.category import CategoryBase
 from enums.order_status import OrderStatus
 from enums.roles import Role
@@ -81,13 +81,13 @@ async def admin_update_user_role(user_id: int, role: Role, db: DBSession):
     await AdminCommands.update_user_role(user_id=user_id, role=role, db=db)
     return {"success": True, "detail": f"User {user_id} role updated to {role} successfully"}
 
-@router.get("/users", response_model=list[User])
+@router.get("/users", response_model=list[UserID])
 async def get_users(db: DBSession,
                     limit: int = Query(10, ge=1, le=100),
                     offset: int = Query(0, ge=0)
                     ):
     return await AdminCommands.get_all_users(limit=limit, offset=offset, db=db)
 
-@router.get("/users/{user_id}", response_model=User)
+@router.get("/users/{user_id}", response_model=UserID)
 async def get_user(user_id: int, db: DBSession):
     return await AdminCommands.get_user(user_id, db)

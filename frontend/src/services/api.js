@@ -26,6 +26,12 @@ export const productsAPI = {
   },
 };
 
+export const categoriesAPI = {
+  getCategories() {
+    return apiClient.get("/categories");
+  },
+};
+
 export const authAPI = {
   register(credentials) {
     return apiClient.post("/register", credentials);
@@ -40,6 +46,9 @@ export const authAPI = {
         "Content-Type": "application/x-www-form-urlencoded",
       },
     });
+  },
+  getMe() {
+    return apiClient.get("/users/me");
   },
 };
 
@@ -75,5 +84,53 @@ export const cartAPI = {
   },
   clearCart() {
     return apiClient.delete("/cart/items");
+  },
+};
+
+export const adminAPI = {
+  addProduct(formData) {
+    return apiClient.post("/products", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+  deleteProduct(productId) {
+    return apiClient.delete(`/products/${productId}`);
+  },
+  updateProduct(productId, data) {
+    return apiClient.patch(`/products/${productId}`, data);
+  },
+  updateProductImage(productId, formData) {
+    return apiClient.patch(`/products/${productId}/image`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+  addCategory(data) {
+    return apiClient.post("/category", data);
+  },
+  deleteCategory(categoryId) {
+    return apiClient.delete(`/category/${categoryId}`);
+  },
+  addProductToCategory(productId, categoryId) {
+    return apiClient.patch(
+      `/category/${categoryId}/products?product_id=${productId}`,
+    );
+  },
+  updateOrderStatus(orderId, status) {
+    return apiClient.patch(`/orders/${orderId}/status?status=${status}`);
+  },
+  getOrders() {
+    return apiClient.get("/orders");
+  },
+  getOrder(orderId) {
+    return apiClient.get(`/orders/${orderId}`);
+  },
+  updateUserRole(userId, role) {
+    return apiClient.patch(`/users/${userId}/role?role=${role}`);
+  },
+  getUsers(limit = 10, offset = 0) {
+    return apiClient.get("/users", { params: { limit, offset } });
+  },
+  getUser(userId) {
+    return apiClient.get(`/users/${userId}`);
   },
 };

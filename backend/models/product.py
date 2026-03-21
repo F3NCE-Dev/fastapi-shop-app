@@ -11,6 +11,6 @@ class ProductORM(Base):
     name: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[Optional[str]] = mapped_column(nullable=True)
     price: Mapped[float] = mapped_column(nullable=False)
-    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=True, on_delete="SET NULL")
+    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=True)
     category: Mapped["CategoryORM"] = relationship(back_populates="products")
     image_url: Mapped[Optional[str]] = mapped_column(nullable=False)
