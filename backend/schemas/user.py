@@ -9,6 +9,10 @@ class UserAuth(BaseModel):
     username: UsernameStr
     password: PasswordStr
 
+class UserUpdate(BaseModel):
+    username: UsernameStr | None = None
+    password: PasswordStr | None = None
+
 class User(BaseModel):
     username: str
     role: Role
@@ -18,9 +22,3 @@ class User(BaseModel):
 
 class UserID(User):
     id: int
-
-class NewUsername(BaseModel):
-    new_name: UsernameStr
-
-class NewPassword(BaseModel):
-    password: PasswordStr

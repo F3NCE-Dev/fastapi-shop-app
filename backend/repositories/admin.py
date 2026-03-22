@@ -8,50 +8,29 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from schemas.product import ProductBase
+from schemas.product import ProductBase, ProductUpdate
 from schemas.order import Order
 from schemas.user import UserID
+from schemas.category import CategoryBase
 from enums.order_status import OrderStatus
 from enums.roles import Role
-from pathlib import Path
-import aiofiles
 from config.config import settings
-
-async def upload_image(image: UploadFile, folder_name: str) -> str:
-    if image.content_type not in ("image/jpeg", "image/png"):
-        raise HTTPException(400, "Invalid image type")
-        
-    img_name = Path(image.filename).name
-
-    product_dir = Path(settings.PRODUCT_IMAGES_PATH) / folder_name
-    product_dir.mkdir(parents=True, exist_ok=True)
-
-    file_path = product_dir / img_name
-
-    async with aiofiles.open(file_path, "wb") as file:
-        await file.write(await image.read())
-
-    return file_path.as_posix()
+from dependencies import upload_image, update_image
 
 class AdminCommands:
     @classmethod
-    async def add_product(cls, name: str, description: str, price: float, category_id: int, image: UploadFile, db: AsyncSession) -> int:
-        new_product = ProductORM(
-            name=name,
-            description=description,
-            price=price,
-            category_id=category_id,
-            image_url=""
-        )
+    async def add_product(cls, data: ProductBase, image: UploadFile, db: AsyncSession) -> int:
+        new_product = ProductORM(**data.model_dump(), image_url="")
+
         try:
             db.add(new_product)
             await db.flush()
-            new_product.image_url = await upload_image(image=image, folder_name=str(new_product.id))
-            await db.commit()
-            return new_product.id
+            new_product.image_url = await upload_image(file=image, dir=settings.PRODUCT_IMAGES_PATH, folder_name=str(new_product.id))
         except Exception as e:
             await db.rollback()
             raise HTTPException(status_code=500, detail="Failed to add product") from e
+        await db.commit()
+        return new_product.id
 
     @classmethod
     async def remove_product(cls, product_id: int, db: AsyncSession) -> int:
@@ -64,60 +43,34 @@ class AdminCommands:
         return product.id
 
     @classmethod
-    async def update_product(cls, product_id: int, data: ProductBase, db: AsyncSession) -> int:
+    async def update_product(cls, product_id: int, data: ProductUpdate, image: UploadFile | None, db: AsyncSession) -> int:
         product = await db.get(ProductORM, product_id)
 
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
 
-        for key, value in data.model_dump().items():
-            setattr(product, key, value)
+        for key, value in data.model_dump(exclude_unset=True, exclude_none=True).items():
+                setattr(product, key, value)
+
+        if image:
+            try:
+                product.image_url = await update_image(old_image_path=product.image_url,
+                                                        new_image=image,
+                                                        dir=settings.PRODUCT_IMAGES_PATH,
+                                                        folder_name=str(product.id))
+            except Exception as e:
+                await db.rollback()
+                raise HTTPException(status_code=500, detail="Failed to update product image") from e
 
         await db.commit()
         return product.id
     
     @classmethod
-    async def update_product_image(cls, product_id: int, image: UploadFile, db: AsyncSession) -> int:
-        product = await db.get(ProductORM, product_id)
-
-        if not product:
-            raise HTTPException(status_code=404, detail="Product not found")
-
-        old_image_path = product.image_url
-        if old_image_path:
-            old_file = Path(old_image_path)
-            if old_file.exists() and old_file.is_file():
-                try:
-                    old_file.unlink()
-                except Exception as e:
-                    print(f"Failed to delete old image: {e}")
-
-        try:
-            path = await upload_image(image=image, folder_name=str(product_id))
-            product.image_url = path
-            await db.commit()
-            return product.id
-        except Exception as e:
-            await db.rollback()
-            raise HTTPException(status_code=500, detail="Failed to update product image") from e
-    
-    @classmethod
-    async def add_category(cls, name: str, db: AsyncSession) -> int:
-        new_category = CategoryORM(name=name)
+    async def add_category(cls, data: CategoryBase, db: AsyncSession) -> int:
+        new_category = CategoryORM(**data.model_dump())
         db.add(new_category)
         await db.commit()
         return new_category.id
-
-    @classmethod
-    async def add_product_to_category(cls, category_id: int, product_id: int, db: AsyncSession) -> int:
-        product = await db.get(ProductORM, product_id)
-
-        if not product:
-            raise HTTPException(status_code=404, detail="Product not found")
-        
-        product.category_id = category_id
-        await db.commit()
-        return product.id
 
     @classmethod
     async def delete_category(cls, category_id: int, db: AsyncSession) -> int:
@@ -132,8 +85,7 @@ class AdminCommands:
     
     @classmethod
     async def update_order_status(cls, order_id: int, status: OrderStatus, db: AsyncSession) -> None:
-        result = await db.execute(select(OrderORM).where(OrderORM.id == order_id))
-        order = result.scalar_one_or_none()
+        order = await db.get(OrderORM, order_id)
 
         if not order:
             raise HTTPException(status_code=404, detail="Order not found")
