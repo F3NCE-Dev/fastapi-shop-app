@@ -1,0 +1,11 @@
+venv
+.env
+__pycache__
+*.pyc
+app.db
+
+backend/static/profile_pictures/**
+!backend/static/profile_pictures/.gitkeep
+
+backend/static/product_images/**
+!backend/static/product_images/.gitkeep
