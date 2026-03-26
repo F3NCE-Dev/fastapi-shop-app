@@ -17,9 +17,9 @@ router = APIRouter(prefix="/admin", tags=["Admin"], dependencies=[Depends(admin_
 async def admin_add_product(
     db: DBSession,
     name: str = Form(...),
-    description: str = Form(...),
+    description: str = Form(None),
     price: float = Form(...),
-    category_id: int = Form(...),
+    category_id: int = Form(None),
     image: UploadFile = File(...),
 ):
     data = ProductBase(name=name, description=description, price=price, category_id=category_id)
