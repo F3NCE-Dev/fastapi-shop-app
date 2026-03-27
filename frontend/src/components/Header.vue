@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { profileAPI, authAPI, API_BASE_URL } from "../services/api";
+import { authAPI, API_BASE_URL } from "../services/api";
 
 const route = useRoute();
 const router = useRouter();
@@ -15,13 +15,13 @@ const checkLoginStatus = async () => {
   if (token) {
     isLoggedIn.value = true;
     try {
-      const { data } = await profileAPI.getProfilePicture();
-      if (data) {
-        profilePictureUrl.value = `${API_BASE_URL}/${data}`;
-      }
-
       const userResponse = await authAPI.getMe();
       isAdmin.value = userResponse.data.role === "admin";
+      if (userResponse.data.profile_picture_url) {
+        profilePictureUrl.value = `${API_BASE_URL}/${userResponse.data.profile_picture_url}`;
+      } else {
+        profilePictureUrl.value = "";
+      }
     } catch (e) {
       console.error("Error fetching user data:", e);
     }

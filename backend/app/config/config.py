@@ -5,12 +5,13 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
-    DATABASE_URL: str = "sqlite+aiosqlite:///app.db"
+    DATABASE_URL: str = "sqlite+aiosqlite:///./app.db"
+
     STATIC_FOLDER: str = "static"
-    PROFILE_PICTURES_PATH: str = "backend/static/profile_pictures"
-    DEFAULT_PROFILE_PICTURE_URL: str = "backend/static/default_profile_pic/default.png"
-    PRODUCT_IMAGES_PATH: str = "backend/static/product_images"
-    
+    PROFILE_PICTURES_PATH: str = "static/profile_pictures"
+    DEFAULT_PROFILE_PICTURE_URL: str = "static/default_profile_pic/default.png"
+    PRODUCT_IMAGES_PATH: str = "static/product_images"
+
     FRONTEND_ORIGINS: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
     REDIRECT_URI: str = "http://localhost:5173/"
 

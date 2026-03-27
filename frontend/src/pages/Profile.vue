@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { profileAPI, API_BASE_URL } from "../services/api";
+import { profileAPI, authAPI, API_BASE_URL } from "../services/api";
 
 const username = ref("");
 const password = ref("");
@@ -9,13 +9,10 @@ const feedback = ref({ message: "", type: "" });
 const profilePictureUrl = ref("");
 
 const fetchProfilePicture = async () => {
-  const token = localStorage.getItem("token");
-  if (!token) return;
-
   try {
-    const { data } = await profileAPI.getProfilePicture();
-    if (data) {
-      profilePictureUrl.value = `${API_BASE_URL}/${data}`;
+    const { data } = await authAPI.getMe();
+    if (data && data.image_url) {
+      profilePictureUrl.value = `${API_BASE_URL}/${data.image_url}`;
     }
   } catch (err) {
     console.error("Error fetching profile picture:", err);
@@ -36,9 +33,9 @@ const showFeedback = (msg, type = "success") => {
 const updateUsername = async () => {
   if (!username.value) return;
   try {
-    const { data } = await profileAPI.editUsername({
-      new_name: username.value,
-    });
+    const formData = new FormData();
+    formData.append("new_username", username.value);
+    const { data } = await profileAPI.editProfile(formData);
     if (data.access_token) {
       localStorage.setItem("token", data.access_token);
     }
@@ -53,9 +50,9 @@ const updateUsername = async () => {
 const updatePassword = async () => {
   if (!password.value) return;
   try {
-    const { data } = await profileAPI.editPassword({
-      password: password.value,
-    });
+    const formData = new FormData();
+    formData.append("new_password", password.value);
+    const { data } = await profileAPI.editProfile(formData);
     if (data.access_token) {
       localStorage.setItem("token", data.access_token);
     }
@@ -71,7 +68,7 @@ const uploadPicture = async () => {
   if (!file.value) return;
   try {
     const formData = new FormData();
-    formData.append("file", file.value);
+    formData.append("image", file.value);
     await profileAPI.editProfilePicture(formData);
     await fetchProfilePicture();
     showFeedback("Profile picture uploaded successfully");

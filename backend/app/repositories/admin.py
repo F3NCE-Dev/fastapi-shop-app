@@ -16,6 +16,7 @@ from app.enums.order_status import OrderStatus
 from app.enums.roles import Role
 from app.config.config import settings
 from app.dependencies import upload_image, update_image
+from app.auth.security import create_access_token
 
 class AdminCommands:
     @classmethod
@@ -114,7 +115,7 @@ class AdminCommands:
         return order
     
     @classmethod
-    async def update_user_role(cls, user_id: int, role: Role, db: AsyncSession) -> None:
+    async def update_user_role(cls, user_id: int, role: Role, db: AsyncSession) -> str:
         user = await db.get(UserORM, user_id)
 
         if not user:
@@ -122,6 +123,7 @@ class AdminCommands:
         
         user.role = role
         await db.commit()
+        return create_access_token({"sub": user.username})
     
     @classmethod
     async def get_all_users(cls, limit: int, offset: int, db: AsyncSession) -> list[UserID]:
