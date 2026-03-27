@@ -8,6 +8,7 @@ import Admin from "../pages/Admin.vue";
 import Order from "../pages/Order.vue";
 import { authAPI } from "../services/api";
 import UserOrders from "../pages/UserOrders.vue";
+import NotFound from "../pages/NotFound.vue";
 
 const routes = [
   {
@@ -49,6 +50,11 @@ const routes = [
     path: "/orders/:id",
     name: "Order",
     component: Order,
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    name: "NotFound",
+    component: NotFound,
   },
 ];
 
