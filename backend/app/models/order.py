@@ -9,7 +9,7 @@ class OrderORM(Base):
 
     id: Mapped[intpk]
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    total_price: Mapped[int] = mapped_column(nullable=False, default=0)
+    total_price: Mapped[float] = mapped_column(nullable=False, default=0)
     status: Mapped[OrderStatus] = mapped_column(SQLEnum(OrderStatus), default=OrderStatus.pending)
     items: Mapped[list["OrderItemORM"]] = relationship(back_populates="order", cascade="all, delete-orphan")
     created_at: Mapped[created_at]

@@ -1,7 +1,9 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { cartAPI, productsAPI, API_BASE_URL } from "../services/api";
+import { useRouter } from "vue-router";
+import { cartAPI, productsAPI, orderAPI, API_BASE_URL } from "../services/api";
 
+const router = useRouter();
 const cart = ref(null);
 const loading = ref(true);
 
@@ -67,6 +69,17 @@ const clearCart = async () => {
   try {
     await cartAPI.clearCart();
     await loadCart();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const checkout = async () => {
+  try {
+    const { data } = await orderAPI.setOrder();
+    if (data.success) {
+      router.push({ name: "Orders" });
+    }
   } catch (err) {
     console.error(err);
   }
@@ -156,7 +169,15 @@ onMounted(loadCart);
         >
           Clear Cart
         </button>
-        <div class="text-2xl font-bold">Total: ${{ cart.total_price }}</div>
+        <div class="flex items-center gap-8">
+          <div class="text-2xl font-bold">Total: ${{ cart.total_price }}</div>
+          <button
+            @click="checkout"
+            class="bg-lime-600 text-white py-3 px-8 rounded-xl font-bold hover:bg-lime-700 transition cursor-pointer"
+          >
+            Buy Now
+          </button>
+        </div>
       </div>
     </div>
   </div>

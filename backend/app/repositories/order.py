@@ -3,6 +3,7 @@ from fastapi import HTTPException
 from app.models.product import ProductORM
 from app.models.order import OrderORM, OrderItemORM
 from app.models.cart import CartORM
+from app.schemas.order import Order
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -56,7 +57,7 @@ class OrderRepository:
         await db.commit()
 
     @classmethod
-    async def get_order(cls, user_id: int, db: AsyncSession):
+    async def get_orders(cls, user_id: int, db: AsyncSession) -> list[Order]:
         result = await db.execute(select(OrderORM).where(OrderORM.user_id == user_id).options(selectinload(OrderORM.items)))
         order = result.scalars().all()
 

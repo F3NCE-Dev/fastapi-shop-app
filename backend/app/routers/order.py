@@ -5,7 +5,7 @@ from app.schemas.order import Order
 from app.schemas.responses import StatusResponse
 from app.dependencies import CurrentUser, DBSession
 
-router = APIRouter(prefix="/order", tags=["Ordering"])
+router = APIRouter(prefix="/orders", tags=["Ordering"])
 
 @router.post("", response_model=StatusResponse, status_code=201)
 async def set_order(current_user: CurrentUser, db: DBSession):
@@ -13,8 +13,8 @@ async def set_order(current_user: CurrentUser, db: DBSession):
     return {"success": True, "detail": f"Order {order_id} set successfully"}
 
 @router.get("", response_model=list[Order])
-async def get_order(current_user: CurrentUser, db: DBSession):
-    return await OrderRepository.get_order(current_user.id, db)
+async def get_orders(current_user: CurrentUser, db: DBSession):
+    return await OrderRepository.get_orders(current_user.id, db)
 
 @router.delete("/{order_id}", response_model=StatusResponse)
 async def delete_order(current_user: CurrentUser, order_id: int, db: DBSession):

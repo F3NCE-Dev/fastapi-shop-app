@@ -5,7 +5,9 @@ import Profile from "../pages/Profile.vue";
 import Product from "../pages/Product.vue";
 import Cart from "../pages/Cart.vue";
 import Admin from "../pages/Admin.vue";
+import Order from "../pages/Order.vue";
 import { authAPI } from "../services/api";
+import UserOrders from "../pages/UserOrders.vue";
 
 const routes = [
   {
@@ -37,6 +39,16 @@ const routes = [
     path: "/admin",
     name: "Admin",
     component: Admin,
+  },
+  {
+    path: "/orders",
+    name: "Orders",
+    component: UserOrders,
+  },
+  {
+    path: "/orders/:id",
+    name: "Order",
+    component: Order,
   },
 ];
 

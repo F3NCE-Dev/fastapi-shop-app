@@ -122,3 +122,15 @@ export const adminAPI = {
     return apiClient.get(`/admin/users/${userId}`);
   },
 };
+
+export const orderAPI = {
+  setOrder() {
+    return apiClient.post("/orders");
+  },
+  getOrders() {
+    return apiClient.get("/orders");
+  },
+  deleteOrder(orderId) {
+    return apiClient.delete(`/orders/${orderId}`);
+  },
+};
