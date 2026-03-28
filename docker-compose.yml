@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///app.db
+      - STATIC_DIR=static
+      - REDIRECT_URI=http://localhost:8000
+    volumes:
+      - ./backend/static:/app/static
+      - ./backend/app.db:/app/app.db
+
+  frontend:
+    build: ./frontend
+    volumes:
+      - ./frontend/dist:/app/dist
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./frontend/dist:/usr/share/nginx/html
+    depends_on:
+      - backend
