@@ -2,6 +2,8 @@ venv
 .env
 __pycache__
 *.pyc
+*.pyo
+*.pyd
 app.db
 
 backend/static/profile_pictures/**
