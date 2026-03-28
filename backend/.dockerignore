@@ -1,0 +1,10 @@
+venv
+*.pyc
+*.pyo
+*.pyd
+__pycache__
+.git*
+.env*
+
+static/product_images/**
+static/profile_pictures/**
