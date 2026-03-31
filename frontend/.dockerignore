@@ -1,4 +1,53 @@
+# Node dependencies
 node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
 dist
-.git*
-.env*
+build
+.vite
+.output
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+
+# Git
+.git
+.gitignore
+
+# Docker files
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Tests / coverage
+coverage
+*.lcov
+
+# Temporary files
+tmp
+temp
+*.tmp
+
+# Cache
+.cache
+.eslintcache
+
+# Misc
+*.swp
+*.swo
