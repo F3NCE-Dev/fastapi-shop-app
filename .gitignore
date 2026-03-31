@@ -4,6 +4,7 @@ __pycache__
 *.pyc
 *.pyo
 *.pyd
+*.log
 app.db
 
 backend/static/profile_pictures/**
