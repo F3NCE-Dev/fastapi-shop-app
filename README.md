@@ -56,11 +56,105 @@ A full-stack e-commerce web application with authentication, product management,
 ## 🏗️ Project Structure
 
 ```bash
-backend/
-frontend/
-nginx/
+backend/ # FastAPI application
+frontend/ # Vue 3 client
+nginx/ # Reverse proxy configuration
 docker-compose.yml
 ```
+
+## 📚 API Documentation
+
+### Authentication
+
+| Method | Endpoint    | Description                                                |
+| ------ | ----------- | ---------------------------------------------------------- |
+| POST   | `/register` | Register a new user                                        |
+| POST   | `/login`    | Login with username/password (returns JWT + refresh token) |
+| POST   | `/refresh`  | Refresh access token using refresh token cookie            |
+| POST   | `/logout`   | Logout and invalidate refresh token                        |
+
+### Admin
+
+#### Products
+
+| Method | Endpoint                       | Description                           |
+| ------ | ------------------------------ | ------------------------------------- |
+| POST   | `/admin/products`              | Add a new product (with image upload) |
+| PATCH  | `/admin/products/{product_id}` | Update product info                   |
+| DELETE | `/admin/products/{product_id}` | Remove product                        |
+
+#### Categories
+
+| Method | Endpoint                        | Description      |
+| ------ | ------------------------------- | ---------------- |
+| POST   | `/admin/category`               | Add new category |
+| DELETE | `/admin/category/{category_id}` | Delete category  |
+
+#### Orders
+
+| Method | Endpoint                   | Description         |
+| ------ | -------------------------- | ------------------- |
+| GET    | `/admin/orders`            | List all orders     |
+| GET    | `/admin/orders/{order_id}` | Get order details   |
+| PATCH  | `/admin/orders/{order_id}` | Update order status |
+
+#### Users
+
+| Method | Endpoint                 | Description                                 |
+| ------ | ------------------------ | ------------------------------------------- |
+| GET    | `/admin/users`           | List all users (limit/offset)               |
+| GET    | `/admin/users/{user_id}` | Get user info                               |
+| PATCH  | `/admin/users/{user_id}` | Update user role (returns new access token) |
+
+### Products
+
+| Method | Endpoint                 | Description                                 |
+| ------ | ------------------------ | ------------------------------------------- |
+| GET    | `/products`              | List products, Optional query parameters for filtering and pagination.                                                                       |
+| GET    | `/products/{product_id}`|Get single product details                    |
+
+### Category
+
+| Method | Endpoint                 | Description                                 |
+| ------ | ------------------------ | ------------------------------------------- |
+| GET    | `/categories`            | List all categories                         |
+
+### Orders
+
+| Method | Endpoint             | Description                |
+| ------ | -------------------- | -------------------------- |
+| POST   | `/orders`            | Place a new order          |
+| GET    | `/orders`            | List current user's orders |
+| DELETE | `/orders/{order_id}` | Delete order (user)        |
+
+### Cart
+
+| Method | Endpoint              | Description                               |
+| ------ | --------------------- | ----------------------------------------- |
+| GET    | `/items`              | Get current user cart                     |
+| POST   | `/items`              | Add item to cart                          |
+| DELETE | `/items/{product_id}` | Remove item from cart (optional quantity) |
+| DELETE | `/items`              | Clear entire cart                         |
+
+### Profile
+
+| Method | Endpoint         | Description                |
+| ------ | ---------------- | -------------------------- |
+| PATCH  | `/profile`       | Update username / password |
+| PATCH  | `/profile/image` | Update profile image       |
+
+### OAuth 2.0 (Google)
+
+| Method | Endpoint           | Description                  |
+| ------ | ------------------ | ---------------------------- |
+| GET    | `/google/url`      | Get Google OAuth URL         |
+| POST   | `/google/callback` | Handle Google OAuth callback |
+
+### User
+
+| Method | Endpoint           | Description                  |
+| ------ | ------------------ | ---------------------------- |
+| GET    | `/users/me`        | Get current user info        |
 
 ## Technologies Used
 
@@ -97,17 +191,63 @@ docker-compose.yml
 
 - Python 3.11+
 - Node.js (for frontend development)
+- Git
 - Docker (recommended)
 
 ### Environment Variables
 
-Create a .env file in the root directory:
+Create a backend .env file:
 
 ```bash
-echo "" > .env
+cd backend
+
+type nul > .env # For Widnows
+# or
+touch .env # For Linux/Mac
+```
+
+fill it in with the following variables:
+
+```env
+SECRET_KEY="Secret_Key"
+ALGORITHM="HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+DATABASE_URL="database_url"
+
+STATIC_FOLDER="static"
+PROFILE_PICTURES_PATH="static/profile_pictures"
+DEFAULT_PROFILE_PICTURE_URL="static/default_profile_pic/default.png"
+PRODUCT_IMAGES_PATH="static/product_images"
+
+FRONTEND_ORIGINS=["http://localhost:5173", "http://127.0.0.1:5173"]
+REDIRECT_URI="http://localhost:5173/"
+
+OAUTH_GOOGLE_CLIENT_ID="Google ID"
+OAUTH_GOOGLE_CLIENT_SECRET="Google Secret"
+
+DEBUG_MODE=true
+```
+
+Create a frontend .env file (required for Docker):
+
+```bash
+cd frontend
+
+type nul > .env # For Widnows
+# or
+touch .env # For Linux/Mac
+```
+
+Fill it with the API base URL (Variables must start with VITE_):
+
+```env
+VITE_API_BASE_URL=api_url
 ```
 
 ## 🐳 Running with Docker (Recommended)
+
+- **Make sure Docker is installed and running**
 
 ```bash
 docker-compose up --build
