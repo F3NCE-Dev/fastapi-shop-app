@@ -123,7 +123,7 @@ class AdminCommands:
         
         user.role = role
         await db.commit()
-        return create_access_token({"sub": user.username})
+        return create_access_token({"sub": str(user.id), "role": user.role.value})
     
     @classmethod
     async def get_all_users(cls, limit: int, offset: int, db: AsyncSession) -> list[UserID]:

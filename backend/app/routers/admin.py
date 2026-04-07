@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, Query, UploadFile, File, Form
 
 from app.repositories.admin import AdminCommands
-from app.schemas.product import ProductBase, ProductUpdate
-from app.schemas.responses import StatusResponse
 from app.schemas.order import Order
+from app.schemas.product import ProductBase, ProductUpdate
+from app.schemas.responses import StatusResponse, AccessTokenResponse
 from app.schemas.user import UserID
 from app.schemas.category import CategoryBase
 from app.enums.order_status import OrderStatus
@@ -78,14 +78,14 @@ async def get_orders(db: DBSession):
 async def get_order(order_id: int, db: DBSession):
     return await AdminCommands.get_order(order_id=order_id, db=db)
 
-@router.patch("/users/{user_id}", response_model=StatusResponse)
+@router.patch("/users/{user_id}", response_model=AccessTokenResponse)
 async def admin_update_user_role(
                                  db: DBSession,
                                  user_id: int,
                                  role: Role = Query(..., description="New role for the user")
                                  ):
-    await AdminCommands.update_user_role(user_id=user_id, role=role, db=db)
-    return {"success": True, "detail": f"User {user_id} role updated to {role} successfully"}
+    new_access_token = await AdminCommands.update_user_role(user_id=user_id, role=role, db=db)
+    return {"access_token": new_access_token, "token_type": "bearer"}
 
 @router.get("/users", response_model=list[UserID])
 async def get_users(db: DBSession,

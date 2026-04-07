@@ -32,11 +32,15 @@ const checkLoginStatus = async () => {
   }
 };
 
-const logout = () => {
-  localStorage.removeItem("token");
-  isLoggedIn.value = false;
-  showMenu.value = false;
-  router.push("/auth");
+const logout = async () => {
+  try {
+    await authAPI.logout();
+  } finally {
+    localStorage.removeItem("token");
+    isLoggedIn.value = false;
+    showMenu.value = false;
+    router.push("/auth");
+  }
 };
 
 onMounted(checkLoginStatus);
@@ -121,7 +125,7 @@ watch(() => route.path, checkLoginStatus);
           <div class="border-t border-slate-100"></div>
           <button
             @click="logout"
-            class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+            class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer"
           >
             Logout
           </button>

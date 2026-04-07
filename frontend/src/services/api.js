@@ -7,6 +7,7 @@ const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 apiClient.interceptors.request.use((config) => {
@@ -16,6 +17,66 @@ apiClient.interceptors.request.use((config) => {
   }
   return config;
 });
+
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url.includes("/refresh")
+    ) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return apiClient(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const { data } = await authAPI.refresh();
+        const { access_token } = data;
+        localStorage.setItem("token", access_token);
+        apiClient.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
+        processQueue(null, access_token);
+        return apiClient(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        localStorage.removeItem("token");
+        if (window.location.pathname !== "/auth") {
+          window.location.href = "/auth";
+        }
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const productsAPI = {
   getProducts(params) {
@@ -49,6 +110,12 @@ export const authAPI = {
   },
   getMe() {
     return apiClient.get("/users/me");
+  },
+  refresh() {
+    return apiClient.post("/refresh");
+  },
+  logout() {
+    return apiClient.post("/logout");
   },
 };
 

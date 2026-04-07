@@ -4,6 +4,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "Secret_Key"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     
     DATABASE_URL: str = "sqlite+aiosqlite:///./app.db"
 
@@ -19,6 +20,10 @@ class Settings(BaseSettings):
     OAUTH_GOOGLE_CLIENT_SECRET: str = "Google Secret"
 
     DEBUG_MODE: bool = True
+
+    @property
+    def REFRESH_TOKEN_MAX_AGE(self) -> int:
+        return self.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
     
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

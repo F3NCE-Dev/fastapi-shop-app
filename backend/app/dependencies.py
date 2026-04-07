@@ -1,7 +1,6 @@
 from fastapi import Depends, HTTPException, status, UploadFile
 
 from app.database import get_db
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user import UserORM
 
@@ -25,14 +24,13 @@ async def get_current_user(
 
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        username: str | None = payload.get("sub")
-        if username is None:
+        user_id: str | None = payload.get("sub")
+        if user_id is None:
             raise credentials_exception
     except jwt.PyJWTError:
         raise credentials_exception
 
-    result = await db.execute(select(UserORM).where(UserORM.username == username))
-    user = result.scalar_one_or_none()
+    user = await db.get(UserORM, user_id)
     if user is None:
         raise credentials_exception
 

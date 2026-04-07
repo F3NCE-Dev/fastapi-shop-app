@@ -4,7 +4,7 @@ class StatusResponse(BaseModel):
     success: bool
     detail: str
 
-class LoginResponse(BaseModel):
+class AccessTokenResponse(BaseModel):
     access_token: str
     token_type: str
 

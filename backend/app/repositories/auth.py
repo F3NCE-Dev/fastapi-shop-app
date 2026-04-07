@@ -1,11 +1,18 @@
 from fastapi import HTTPException, status
 
 from app.models.user import UserORM
+from app.models.refresh_token import RefreshTokenORM
+from app.repositories.refresh_token import RefreshTokenRepository
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.user import UserAuth
-from app.auth.security import hash_password, verify_password, create_access_token
+from app.auth.security import (
+    create_refresh_token,
+    get_refresh_token_expiry,
+    hash_password,
+    verify_password,
+    create_access_token)
 
 class AuthRepository:
     @classmethod
@@ -25,7 +32,7 @@ class AuthRepository:
         return new_user.id
     
     @classmethod
-    async def login_user(cls, credentials: UserAuth, db: AsyncSession) -> str:
+    async def login_user(cls, credentials: UserAuth, db: AsyncSession) -> tuple[str, str]:
         result = await db.execute(select(UserORM).where(UserORM.username == credentials.username))
         user = result.scalar_one_or_none()
 
@@ -35,4 +42,15 @@ class AuthRepository:
                 detail="Incorrect username or password",
             )
 
-        return create_access_token({"sub": user.username})
+        access_token = create_access_token({"sub": str(user.id), "role": user.role.value})
+
+        refresh_token_value = create_refresh_token()
+        refresh_token = RefreshTokenORM(
+            user_id=user.id,
+            token=refresh_token_value,
+            expires_at=get_refresh_token_expiry(),
+        )
+        await RefreshTokenRepository.create_refresh_token(refresh_token, db)
+        await db.commit()
+
+        return access_token, refresh_token_value
