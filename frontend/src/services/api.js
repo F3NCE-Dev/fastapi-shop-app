@@ -117,6 +117,9 @@ export const authAPI = {
   logout() {
     return apiClient.post("/logout");
   },
+  googleCallback(code) {
+    return apiClient.post("/google/callback", { code });
+  },
 };
 
 export const profileAPI = {
