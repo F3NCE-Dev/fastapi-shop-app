@@ -30,7 +30,7 @@ async def get_current_user(
     except jwt.PyJWTError:
         raise credentials_exception
 
-    user = await db.get(UserORM, user_id)
+    user = await db.get(UserORM, int(user_id))
     if user is None:
         raise credentials_exception
 

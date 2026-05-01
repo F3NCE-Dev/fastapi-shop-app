@@ -5,8 +5,8 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from app.models import user, product, category, cart, order
 from app.database import Base
+from app.models import cart, category, order, product, refresh_token, user
 from app.config.config import settings
 
 from alembic import context
