@@ -161,8 +161,8 @@ docker-compose.yml
 ### Backend
 
 - **FastAPI**
-- **SQLAlchemy**
-- **aiosqlite**
+- **SQLAlchemy (Async ORM)**
+- **PostgreSQL / SQLite**
 - **Pydantic**
 - **PyJWT**
 - **passlib**
