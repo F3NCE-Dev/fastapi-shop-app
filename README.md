@@ -163,6 +163,7 @@ docker-compose.yml
 - **FastAPI**
 - **SQLAlchemy (Async ORM)**
 - **PostgreSQL / SQLite**
+- **alembic**
 - **Pydantic**
 - **PyJWT**
 - **passlib**
@@ -189,7 +190,7 @@ docker-compose.yml
 
 ### Prerequisites
 
-- Python 3.11+
+- Python 3.11+ (for backend development)
 - Node.js (for frontend development)
 - Git
 - Docker (recommended)
@@ -247,7 +248,7 @@ VITE_API_BASE_URL=api_url
 
 ## 🐳 Running with Docker (Recommended)
 
-- **Make sure Docker is installed and running**
+**Make sure Docker is installed and running**
 
 ```bash
 docker-compose up --build
