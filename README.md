@@ -282,3 +282,26 @@ npm run dev
 
 - Frontend (Vue + Vite): http://localhost:5173
 - Backend (FastAPI): http://localhost:8000
+
+## 🧪 Testing
+
+### Install the dependencies
+
+```bash
+cd backend
+pip install pytest pytest-asyncio
+```
+
+### Run the tests
+
+```bash
+cd backend
+pytest -v
+```
+
+### Run a specific file
+
+```bash
+cd backend
+pytest -v tests/test_auth.py
+```

@@ -9,3 +9,6 @@ app.db
 
 static/product_images/**
 static/profile_pictures/**
+
+tests
+pytest.ini

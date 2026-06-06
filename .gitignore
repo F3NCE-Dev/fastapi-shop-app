@@ -5,6 +5,7 @@ __pycache__
 *.pyo
 *.pyd
 *.log
+.vscode
 app.db
 
 backend/static/profile_pictures/**
