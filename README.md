@@ -230,22 +230,6 @@ OAUTH_GOOGLE_CLIENT_SECRET="Google Secret"
 DEBUG_MODE=true
 ```
 
-Create a frontend .env file (required for Docker):
-
-```bash
-cd frontend
-
-type nul > .env # For Widnows
-# or
-touch .env # For Linux/Mac
-```
-
-Fill it with the API base URL (Variables must start with VITE_):
-
-```env
-VITE_API_BASE_URL=api_url
-```
-
 ## 🐳 Running with Docker (Recommended)
 
 **Make sure Docker is installed and running**
