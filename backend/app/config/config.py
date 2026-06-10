@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     
     DATABASE_URL: str = "sqlite+aiosqlite:///./app.db"
+    REDIS_URL: str = "redis://redis:6379"
 
     STATIC_FOLDER: str = "static"
     PROFILE_PICTURES_PATH: str = "static/profile_pictures"

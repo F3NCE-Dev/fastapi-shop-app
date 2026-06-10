@@ -9,13 +9,14 @@ from app.schemas.category import CategoryBase
 from app.enums.order_status import OrderStatus
 from app.enums.roles import Role
 from app.permissions.permissions import admin_required
-from app.dependencies import DBSession
+from app.dependencies import DBSession, REDIS
 
 router = APIRouter(prefix="/admin", tags=["Admin"], dependencies=[Depends(admin_required)])
 
 @router.post("/products", response_model=StatusResponse, status_code=201)
 async def admin_add_product(
     db: DBSession,
+    redis: REDIS,
     name: str = Form(...),
     description: str = Form(None),
     price: float = Form(...),
@@ -28,18 +29,20 @@ async def admin_add_product(
         data=data,
         image=image,
         db=db,
+        redis=redis
     )
 
     return {"success": True, "detail": f"Product {product_id} added successfully"}
 
 @router.delete("/products/{product_id}", response_model=StatusResponse)
-async def admin_remove_product(product_id: int, db: DBSession):
-    product_id = await AdminCommands.remove_product(product_id=product_id, db=db)
+async def admin_remove_product(product_id: int, db: DBSession, redis: REDIS):
+    product_id = await AdminCommands.remove_product(product_id=product_id, db=db, redis=redis)
     return {"success": True, "detail": f"Product {product_id} removed successfully"}
 
 @router.patch("/products/{product_id}", response_model=StatusResponse)
 async def admin_update_product(
     db: DBSession,
+    redis: REDIS,
     product_id: int,
     category_id: int | None = Form(None),
     name: str | None = Form(None),
@@ -48,17 +51,17 @@ async def admin_update_product(
     image: UploadFile | None = File(None)
 ):
     data = ProductUpdate(category_id=category_id, name=name, description=description, price=price)
-    product_id = await AdminCommands.update_product(product_id=product_id, data=data, image=image, db=db)
+    product_id = await AdminCommands.update_product(product_id=product_id, data=data, image=image, db=db, redis=redis)
     return {"success": True, "detail": f"Product {product_id} updated successfully"}
 
 @router.post("/category", response_model=StatusResponse, status_code=201)
-async def admin_add_category(data: CategoryBase, db: DBSession):
-    category_id = await AdminCommands.add_category(data=data, db=db)
+async def admin_add_category(data: CategoryBase, db: DBSession, redis: REDIS):
+    category_id = await AdminCommands.add_category(data=data, db=db, redis=redis)
     return {"success": True, "detail": f"Category {category_id} added successfully"}
 
 @router.delete("/category/{category_id}", response_model=StatusResponse)
-async def admin_delete_category(category_id: int, db: DBSession):
-    category_id = await AdminCommands.delete_category(category_id=category_id, db=db)
+async def admin_delete_category(category_id: int, db: DBSession, redis: REDIS):
+    category_id = await AdminCommands.delete_category(category_id=category_id, db=db, redis=redis)
     return {"success": True, "detail": f"Category {category_id} deleted successfully"}
 
 @router.patch("/orders/{order_id}", response_model=StatusResponse)

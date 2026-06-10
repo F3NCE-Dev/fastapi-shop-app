@@ -4,6 +4,9 @@ from app.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user import UserORM
 
+from app.redis_client import get_redis_client
+from redis.asyncio import Redis
+
 from app.config.config import settings
 from app.auth.security import oauth2_scheme
 import jwt
@@ -63,4 +66,5 @@ def get_image_url(image_path: str) -> str:
     return image_path
 
 DBSession = Annotated[AsyncSession, Depends(get_db)]
+REDIS = Annotated[Redis, Depends(get_redis_client)]
 CurrentUser = Annotated[UserORM, Depends(get_current_user)]
