@@ -64,6 +64,6 @@ class ProductRepository:
         
         product.image_url = get_image_url(product.image_url)
 
-        await redis.set(cache_key, ProductResponse.model_validate(product).model_dump_json, ex=600)
+        await redis.set(cache_key, ProductResponse.model_validate(product).model_dump_json(), ex=600)
 
         return product
