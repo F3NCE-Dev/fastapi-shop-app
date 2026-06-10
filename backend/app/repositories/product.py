@@ -21,7 +21,7 @@ class ProductRepository:
 
         cached = await redis.get(cache_key)
         if cached:
-            return [ProductResponse.model_validate_json(**p) for p in json.loads(cached)]
+            return [ProductResponse(**p) for p in json.loads(cached)]
 
         query = select(ProductORM)
         

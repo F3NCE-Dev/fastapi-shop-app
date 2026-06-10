@@ -13,7 +13,7 @@ class CategoryRepository:
     async def get_all_categories(cls, db: AsyncSession, redis: Redis) -> list[CategoryResponse]:
         cached = await redis.get("categories")
         if cached:
-            return [CategoryResponse.model_validate_json(**c) for c in json.loads(cached)]
+            return [CategoryResponse(**c) for c in json.loads(cached)]
 
         result = await db.execute(select(CategoryORM))
         categories = result.scalars().all()
