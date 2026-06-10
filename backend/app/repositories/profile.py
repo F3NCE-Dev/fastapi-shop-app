@@ -1,5 +1,6 @@
 from fastapi import HTTPException, UploadFile
 
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user import UserORM
 
@@ -11,7 +12,7 @@ from app.config.config import settings
 
 class ProfileEdit:
     @classmethod
-    async def EditProfile(cls, profile_id: int, data: UserUpdate, db: AsyncSession) -> str:
+    async def EditProfile(cls, profile_id: int, data: UserUpdate, db: AsyncSession, redis: Redis) -> str:
         user = await db.get(UserORM, profile_id)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
@@ -23,10 +24,11 @@ class ProfileEdit:
                 setattr(user, field, value)
 
         await db.commit()
+        await redis.delete(f"user:{profile_id}")
         return create_access_token({"sub": user.username})
 
     @classmethod
-    async def UpdateProfileImage(cls, profile_id: int, image: UploadFile, db: AsyncSession) -> None:
+    async def UpdateProfileImage(cls, profile_id: int, image: UploadFile, db: AsyncSession, redis: Redis) -> None:
         user = await db.get(UserORM, profile_id)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
@@ -38,6 +40,6 @@ class ProfileEdit:
                                                           folder_name=str(profile_id),
                                                           default_image=settings.DEFAULT_PROFILE_PICTURE_URL)
         except Exception as e:
-            await db.rollback()
             raise HTTPException(status_code=500, detail="Failed to update profile picture") from e
         await db.commit()
+        await redis.delete(f"user:{profile_id}")

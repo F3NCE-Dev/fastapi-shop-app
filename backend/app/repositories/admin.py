@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
+from redis.asyncio import Redis
+
 from app.schemas.product import ProductBase, ProductUpdate
 from app.schemas.order import Order
 from app.schemas.user import UserID
@@ -18,9 +20,17 @@ from app.config.config import settings
 from app.dependencies import upload_image, update_image
 from app.auth.security import create_access_token
 
+async def _invalidate_product_cache(product_id: int, redis: Redis) -> None:
+    await redis.delete(f"product:{product_id}")
+    async for key in redis.scan_iter("products:*"):
+        await redis.delete(key)
+
+async def _invalidate_category_cache(redis: Redis) -> None:
+    await redis.delete("categories")
+
 class AdminCommands:
     @classmethod
-    async def add_product(cls, data: ProductBase, image: UploadFile, db: AsyncSession) -> int:
+    async def add_product(cls, data: ProductBase, image: UploadFile, db: AsyncSession, redis: Redis) -> int:
         new_product = ProductORM(**data.model_dump(), image_url="")
 
         try:
@@ -31,20 +41,22 @@ class AdminCommands:
             await db.rollback()
             raise HTTPException(status_code=500, detail="Failed to add product") from e
         await db.commit()
+        await _invalidate_product_cache(new_product.id, redis)
         return new_product.id
 
     @classmethod
-    async def remove_product(cls, product_id: int, db: AsyncSession) -> int:
+    async def remove_product(cls, product_id: int, db: AsyncSession, redis: Redis) -> int:
         product = await db.get(ProductORM, product_id)
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
 
         await db.delete(product)
         await db.commit()
+        await _invalidate_product_cache(product.id, redis)
         return product.id
 
     @classmethod
-    async def update_product(cls, product_id: int, data: ProductUpdate, image: UploadFile | None, db: AsyncSession) -> int:
+    async def update_product(cls, product_id: int, data: ProductUpdate, image: UploadFile | None, db: AsyncSession, redis: Redis) -> int:
         product = await db.get(ProductORM, product_id)
 
         if not product:
@@ -64,17 +76,19 @@ class AdminCommands:
                 raise HTTPException(status_code=500, detail="Failed to update product image") from e
 
         await db.commit()
+        await _invalidate_product_cache(product.id, redis)
         return product.id
     
     @classmethod
-    async def add_category(cls, data: CategoryBase, db: AsyncSession) -> int:
+    async def add_category(cls, data: CategoryBase, db: AsyncSession, redis: Redis) -> int:
         new_category = CategoryORM(**data.model_dump())
         db.add(new_category)
         await db.commit()
+        await _invalidate_category_cache(redis)
         return new_category.id
 
     @classmethod
-    async def delete_category(cls, category_id: int, db: AsyncSession) -> int:
+    async def delete_category(cls, category_id: int, db: AsyncSession, redis: Redis) -> int:
         category = await db.get(CategoryORM, category_id)
 
         if not category:
@@ -82,6 +96,7 @@ class AdminCommands:
         
         await db.delete(category)
         await db.commit()
+        await _invalidate_category_cache(redis)
         return category.id
     
     @classmethod

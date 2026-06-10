@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from fastapi import HTTPException
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user import UserORM
 from app.models.refresh_token import RefreshTokenORM
@@ -10,12 +11,22 @@ from app.auth.security import create_access_token, create_refresh_token, get_ref
 
 class UserRepository:
     @classmethod
-    async def get_user(cls, user_id: int, db: AsyncSession) -> User:
+    async def get_user(cls, user_id: int, db: AsyncSession, redis: Redis) -> User:
+        cached = await redis.get(f"user:{user_id}")
+        if cached:
+            user = User.model_validate_json(cached)
+            user.profile_picture_url = get_image_url(user.profile_picture_url)
+            return user
+        
         user = await db.get(UserORM, user_id)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
+        
+        user = User.model_validate(user)
+        await redis.set(f"user:{user_id}", user.model_dump_json(), ex=3600)
+        
         user.profile_picture_url = get_image_url(user.profile_picture_url)
-        return User.model_validate(user)
+        return user
 
     @classmethod
     async def refresh_token(cls, refresh_token_value: str, db: AsyncSession) -> tuple[str, str]:
