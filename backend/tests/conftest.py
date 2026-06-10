@@ -2,6 +2,7 @@ import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+import fakeredis.aioredis
 
 # ── patch settings before importing anything from app ────────────────────────
 import app.config.config as _cfg
@@ -14,14 +15,14 @@ _cfg.settings.PRODUCT_IMAGES_PATH = "static/product_images"
 
 from app.main import app
 from app.database import Base, get_db
+from app.redis_client import get_redis_client
 from app.auth.security import create_access_token, hash_password
 from app.models.user import UserORM
 from app.models.product import ProductORM
 from app.models.category import CategoryORM
-from app.models.cart import CartORM, CartItemORM
 from app.enums.roles import Role
 
-# ── engine shared for the whole session ──────────────────────────────────────
+# ── in-memory SQLite engine ───────────────────────────────────────────────────
 test_engine = create_async_engine(
     "sqlite+aiosqlite:///:memory:",
     connect_args={"check_same_thread": False},
@@ -47,15 +48,29 @@ async def db_session() -> AsyncSession:
         await session.rollback()
 
 
+@pytest_asyncio.fixture()
+async def fake_redis():
+    """In-memory Redis — flushed before every test so no state leaks."""
+    redis = fakeredis.aioredis.FakeRedis(decode_responses=True)
+    yield redis
+    await redis.flushall()
+    await redis.aclose()
+
+
 @pytest_asyncio.fixture(autouse=True)
-async def override_get_db(db_session: AsyncSession):
-    """Replace FastAPI's DB dependency with the test session."""
-    async def _override():
+async def override_dependencies(db_session: AsyncSession, fake_redis):
+    """Override both DB and Redis FastAPI dependencies for every test."""
+    async def _override_db():
         yield db_session
 
-    app.dependency_overrides[get_db] = _override
+    async def _override_redis():
+        return fake_redis
+
+    app.dependency_overrides[get_db] = _override_db
+    app.dependency_overrides[get_redis_client] = _override_redis
     yield
     app.dependency_overrides.pop(get_db, None)
+    app.dependency_overrides.pop(get_redis_client, None)
 
 
 @pytest_asyncio.fixture()
