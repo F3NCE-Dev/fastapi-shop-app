@@ -12,3 +12,4 @@ static/profile_pictures/**
 
 tests
 pytest.ini
+.pytest*
