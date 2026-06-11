@@ -49,6 +49,7 @@ A full-stack e-commerce web application with authentication, product management,
 
 - REST API with FastAPI
 - Async database support
+- Redis caching
 - Structured project architecture
 
 ---
@@ -163,6 +164,7 @@ docker-compose.yml
 - **FastAPI**
 - **SQLAlchemy (Async ORM)**
 - **PostgreSQL / SQLite**
+- **redis**
 - **alembic**
 - **Pydantic**
 - **PyJWT**
@@ -192,6 +194,7 @@ docker-compose.yml
 
 - Python 3.11+ (for backend development)
 - Node.js (for frontend development)
+- Redis Server (required for local backend development)
 - Git
 - Docker (recommended)
 
@@ -213,8 +216,10 @@ fill it in with the following variables:
 SECRET_KEY="Secret_Key"
 ALGORITHM="HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES=30
+REFRESH_TOKEN_EXPIRE_DAYS=7
 
 DATABASE_URL="database_url"
+REDIS_URL="redis://redis:6379"
 
 STATIC_FOLDER="static"
 PROFILE_PICTURES_PATH="static/profile_pictures"
@@ -239,6 +244,8 @@ docker-compose up --build
 ```
 
 ## 💻 Running Locally (Development)
+
+Make sure your local redis server is running.
 
 ### Backend
 
@@ -273,7 +280,7 @@ npm run dev
 
 ```bash
 cd backend
-pip install pytest pytest-asyncio
+pip install -r requirements-test.txt
 ```
 
 ### Run the tests
