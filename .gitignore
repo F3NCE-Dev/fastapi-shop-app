@@ -6,6 +6,7 @@ __pycache__
 *.pyd
 *.log
 .vscode
+.idea
 app.db
 
 backend/static/profile_pictures/**
