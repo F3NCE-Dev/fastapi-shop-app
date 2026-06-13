@@ -168,10 +168,10 @@ export const adminAPI = {
     return apiClient.patch(`/admin/products/${productId}`, data);
   },
   addCategory(data) {
-    return apiClient.post("/admin/category", data);
+    return apiClient.post("/admin/categories", data);
   },
   deleteCategory(categoryId) {
-    return apiClient.delete(`/admin/category/${categoryId}`);
+    return apiClient.delete(`/admin/categories/${categoryId}`);
   },
   updateOrderStatus(orderId, status) {
     return apiClient.patch(`/admin/orders/${orderId}?status=${status}`);

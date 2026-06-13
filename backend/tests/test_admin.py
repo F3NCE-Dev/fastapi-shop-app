@@ -34,7 +34,7 @@ class TestAdmin:
     async def test_admin_add_category(self, client: AsyncClient, db_session: AsyncSession):
         admin = await create_user(db_session, username="adminaddcat", role=Role.admin)
         resp = await client.post(
-            "/admin/category",
+            "/admin/categories",
             json={"name": "Admin Category"},
             headers=auth_header(admin),
         )
@@ -44,7 +44,7 @@ class TestAdmin:
     async def test_admin_delete_category(self, client: AsyncClient, db_session: AsyncSession):
         admin = await create_user(db_session, username="admindelcat", role=Role.admin)
         cat = await create_category(db_session, name="ToDelete")
-        resp = await client.delete(f"/admin/category/{cat.id}", headers=auth_header(admin))
+        resp = await client.delete(f"/admin/categories/{cat.id}", headers=auth_header(admin))
         assert resp.status_code == 200
         assert resp.json()["success"] is True
 

@@ -54,12 +54,12 @@ async def admin_update_product(
     product_id = await AdminCommands.update_product(product_id=product_id, data=data, image=image, db=db, redis=redis)
     return {"success": True, "detail": f"Product {product_id} updated successfully"}
 
-@router.post("/category", response_model=StatusResponse, status_code=201)
+@router.post("/categories", response_model=StatusResponse, status_code=201)
 async def admin_add_category(data: CategoryBase, db: DBSession, redis: REDIS):
     category_id = await AdminCommands.add_category(data=data, db=db, redis=redis)
     return {"success": True, "detail": f"Category {category_id} added successfully"}
 
-@router.delete("/category/{category_id}", response_model=StatusResponse)
+@router.delete("/categories/{category_id}", response_model=StatusResponse)
 async def admin_delete_category(category_id: int, db: DBSession, redis: REDIS):
     category_id = await AdminCommands.delete_category(category_id=category_id, db=db, redis=redis)
     return {"success": True, "detail": f"Category {category_id} deleted successfully"}
