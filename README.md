@@ -88,8 +88,8 @@ docker-compose.yml
 
 | Method | Endpoint                        | Description      |
 | ------ | ------------------------------- | ---------------- |
-| POST   | `/admin/category`               | Add new category |
-| DELETE | `/admin/category/{category_id}` | Delete category  |
+| POST   | `/admin/categories`               | Add new category |
+| DELETE | `/admin/categories/{category_id}` | Delete category  |
 
 #### Orders
 
