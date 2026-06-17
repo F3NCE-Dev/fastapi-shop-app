@@ -12,4 +12,5 @@ static/profile_pictures/**
 
 tests
 pytest.ini
+requirements-test.txt
 .pytest*
